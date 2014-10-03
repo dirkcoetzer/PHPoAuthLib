@@ -170,6 +170,10 @@ abstract class AbstractService extends BaseAbstractService implements ServiceInt
         }
 
         $extraHeaders = array_merge($this->getExtraApiHeaders(), $extraHeaders);
+        
+        \Log::debug($uri);
+        \Log::debug(var_export($token, true));
+        \Log::debug(var_export($extraHeaders, true));
 
         return $this->httpClient->retrieveResponse($uri, $body, $extraHeaders, $method);
     }

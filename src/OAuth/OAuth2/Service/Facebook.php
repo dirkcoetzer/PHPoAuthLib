@@ -147,6 +147,41 @@ class Facebook extends AbstractService
     }
 
     /**
+     * Refreshes an OAuth2 access token.
+     *
+     * @param TokenInterface $token
+     *
+     * @return TokenInterface $token
+     *
+     * @throws MissingRefreshTokenException
+     */
+    public function requestLongLivedToken(StdOAuth2Token $token)
+    {
+        $accessToken = $token->getAccessToken();
+
+        if (empty($accessToken)) {
+            throw new MissingRefreshTokenException();
+        }
+
+        $parameters = array(
+            'grant_type'    => 'fb_exchange_token',
+            'type'          => 'web_server',
+            'client_id'     => $this->credentials->getConsumerId(),
+            'client_secret' => $this->credentials->getConsumerSecret(),
+            'fb_exchange_token' => $accessToken,
+        );                
+
+        $extend_url = "https://graph.facebook.com/oauth/access_token?client_id=".$this->credentials->getConsumerId()."&client_secret=".$this->credentials->getConsumerSecret()."&grant_type=fb_exchange_token&fb_exchange_token=".$accessToken;
+        $responseBody = file_get_contents($extend_url);
+        
+        $token = $this->parseAccessTokenResponse($responseBody);
+        $this->storage->storeAccessToken($this->service(), $token);
+
+        return $token;
+    }
+
+
+    /**
      * {@inheritdoc}
      */
     protected function parseAccessTokenResponse($responseBody)

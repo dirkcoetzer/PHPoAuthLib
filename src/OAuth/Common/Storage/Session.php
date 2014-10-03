@@ -68,11 +68,16 @@ class Session implements TokenStorageInterface
      */
     public function storeAccessToken($service, TokenInterface $token)
     {
+        \Log::debug(__METHOD__);
+        \Log::debug($this->sessionVariableName);
+
         $serializedToken = serialize($token);
+        \Log::debug($serializedToken);
 
         if (isset($_SESSION[$this->sessionVariableName])
             && is_array($_SESSION[$this->sessionVariableName])
         ) {
+            \Log::debug("service: " . $service);
             $_SESSION[$this->sessionVariableName][$service] = $serializedToken;
         } else {
             $_SESSION[$this->sessionVariableName] = array(
